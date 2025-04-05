@@ -1,0 +1,31 @@
+For the podcast mentioned above by name, rate it on a scale of 1-10 for each of the following categories.
+
+Comedic
+Controversy
+Consistency
+Thought Provoking
+Bias
+Expressivness
+Exciting
+Pacing
+Level of fiction
+Narrative
+Originality
+Production Quality
+Positivity
+Personal
+Educational
+Conservative
+Progressive 
+Equity - minded
+Adult Content
+Explicit Language
+Self Improvement
+Family oriented
+Historical Focus
+Modern Focus
+
+Respond ONLY in JSON format and without any other commentary. Use the following JSON schema and without a code block:
+{
+	categoryName: float, categoryName: float, etc...
+}
