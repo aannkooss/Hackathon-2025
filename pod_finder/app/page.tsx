@@ -1,16 +1,12 @@
-'use client'; // This tells Next.js that this component should be rendered on the client side.
+'use client'; // Ensure this component is rendered on the client side
 
-import { useState } from "react";
+import { signIn } from "next-auth/react"; // Import signIn from NextAuth
 
 const Login = () => {
-  const [error, setError] = useState(""); // Error message state for any errors that may occur
-
-  // Function to handle "Continue with GitHub" button click
+  // Function to handle the GitHub sign-in button click
   const handleGitHubLogin = () => {
-    // Placeholder for GitHub OAuth integration
-    // For now, we're just logging to the console
-    console.log("Redirecting to GitHub login...");
-    // Redirect logic goes here (e.g., call to a GitHub OAuth endpoint)
+    // Trigger the GitHub OAuth login flow via NextAuth
+    signIn("github");
   };
 
   return (
@@ -21,12 +17,9 @@ const Login = () => {
         {/* Card containing the login form */}
         
         <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-6">
-          Pod_Finder
+          Podcast Finder
         </h1>
         {/* Title of the website, larger and bolder to grab attention */}
-
-        {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-        {/* Display error message if there is any */}
 
         {/* "Continue with GitHub" Button */}
         <button
