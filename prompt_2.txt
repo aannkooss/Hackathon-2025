@@ -1,0 +1,33 @@
+For the podcast mentioned above by name, determine whether each of the following tags is appropriate, if it is mark it with a 1, and a 0 otherwise.
+
+Finance
+Romance
+Self-Improvment
+Interviews
+Video Games
+Comedy
+True Crime
+Technology
+Politics
+History
+Sports
+Health and Wellness
+Education
+Business
+Storytelling
+Art and Design
+Literature
+Food and Drink
+Travel
+Environment
+Spirituality
+Parenting
+Relationships
+Lifestyle
+Entrepreneurship
+Documentary
+
+Respond ONLY in JSON format and without any other commentary. Use the following JSON schema and without a code block:
+{
+	tag: int, tag: int, etc...
+}
