@@ -3,11 +3,21 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Auth0Provider } from '@auth0/auth0-react';
+
+const domain = "dev-lc0sijwlre1nfnub.us.auth0.com";
+const clientId = "10LWxcUo3FtvbtIxlOOnsCCeq07YupOE";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <Auth0Provider 
+      domain = {domain}
+      clientId = {clientId}
+      authorizationParameters = {{redirect_uri: "http://localhost:3002/auth/github/callback" }}
+      >
     <App />
+    </Auth0Provider>
   </React.StrictMode>
 );
 
