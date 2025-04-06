@@ -213,11 +213,13 @@ async def process_podcast_input(request: PodcastInputRequest = Body(...)):
         
         # Check if we found any podcasts
         if not found_podcasts:
-            return {
-                "status": "error",
-                "message": "None of the provided podcasts were found in our database",
-                "not_found": not_found
-            }
+            # Convert podcast names to interests for LLM processing
+            interests_text = request.podcasts
+            interests_request = InterestsRequest(
+                interests1=interests_text,
+                interests2="I like podcasts similar to these"
+            )
+            return await process_interests(interests_request)
         
         # Calculate average feature vector
         # Identify numeric columns and categorical columns
