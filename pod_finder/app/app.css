@@ -1,0 +1,122 @@
+/* Basic reset and font settings */
+html, body, #root, .App {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    /* Prevent the browser from scrolling by default */
+    overflow: hidden;
+  }
+  
+  /* Shared gradient background for ALL pages */
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    /* Let the container scroll if content is bigger than the screen */
+    overflow-y: auto;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    text-align: center;
+    padding: 40px 20px;
+    min-height: 100%;
+  }
+  
+  .main-title {
+    color: white;
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  /* White card in the center, just like the login card had */
+  .page-card {
+    background: white;
+    padding: 60px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* Footer for consistent theme */
+  .footer {
+    margin-top: 20px;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  
+  /* Reusable blue button style (matching login page) */
+  .blue-button {
+    background: #007BFF;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .blue-button:hover {
+    opacity: 0.9;
+  }
+  
+  /* The top-right logout button is the same color, 
+     but pinned to the top-right of the page container */
+  .logout-top-right-page {
+    background: #007BFF;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+  
+  .logout-top-right-page:hover {
+    opacity: 0.9;
+  }
+  
+  /* Interests Title */
+  .interests-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  /* Textarea for user input */
+  .interests-textarea {
+    width: 100%;
+    max-width: 500px;
+    height: 120px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    margin-top: 10px;
+  }
+  
+  /* BIGGER hero text for the main page */
+  .hero-title-bigger {
+    font-size: 2.3rem;
+    margin-top: 30px;
+  }
+  
+  .hero-subtitle-bigger {
+    font-size: 1.35rem;
+  }
+  
+  /* Newly added classes for the login page text */
+  .login-title {
+    font-size: 3.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .login-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  

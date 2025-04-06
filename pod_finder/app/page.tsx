@@ -1,5 +1,6 @@
 'use client'; // Ensure this component is rendered on the client side
 
+import { getServerSession } from "next-auth";
 import { signIn } from "next-auth/react"; // Import signIn from NextAuth
 
 const Login = () => {
@@ -8,6 +9,7 @@ const Login = () => {
     // Trigger the GitHub OAuth login flow via NextAuth
     signIn("github");
   };
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
