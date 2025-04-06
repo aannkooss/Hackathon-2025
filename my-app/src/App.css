@@ -1,0 +1,166 @@
+/* Basic reset and font settings */
+html, body, #root, .App {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  /* Prevent the browser from scrolling by default */
+  overflow: hidden;
+}
+
+/* Shared gradient background for ALL pages */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  /* Let the container scroll if content is bigger than the screen */
+  overflow-y: auto;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+  text-align: center;
+  padding: 40px 20px;
+  min-height: 100%;
+}
+
+/* Main title with solid white text */
+.main-title {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* White card in the center - made smaller */
+.page-card {
+  background: white;
+  padding: 40px; /* Reduced padding */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px; /* Reduced max-width */
+  width: 100%;
+  position: relative;
+}
+
+/* Footer for consistent theme */
+.footer {
+  margin-top: 20px;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+/* Reusable blue button style */
+.blue-button {
+  background: #007BFF;
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.blue-button:hover {
+  opacity: 0.9;
+}
+
+/* Logout button style */
+.logout-top-right-page {
+  background: #007BFF;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.logout-top-right-page:hover {
+  opacity: 0.9;
+}
+
+/* Interests Title */
+.interests-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* Textarea for user input */
+.interests-textarea {
+  width: 100%;
+  max-width: 500px;
+  height: 120px;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 10px;
+  resize: none; /* Disables resizing */
+}
+
+/* Hero Title Bigger */
+.hero-title-bigger {
+  font-size: 2.3rem;
+  margin-top: 30px;
+}
+
+/* Login page text styles (Front Page Only) */
+.login-title {
+  font-size: 4rem;  /* Larger "Welcome" text */
+  margin-bottom: 20px; /* More spacing */
+}
+
+.login-subtitle {
+  font-size: 2rem;  /* Larger subtitle */
+  margin-bottom: 30px; /* More spacing */
+}
+
+/* Button container for vertical stacking and equal width buttons */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.button-container .blue-button {
+  width: 100%;
+  max-width: 200px; /* Ensures both buttons are the same length */
+}
+
+/* Back button positioned at the bottom left of the screen */
+.back-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #007BFF;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  opacity: 0.9;
+}
+
+/* Hero container for centering the heading and shifting it upward */
+.hero-container {
+  height: 150px; /* Adjust as needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-top: -40px; /* Shift the text slightly higher */
+}
+
+.recommendation-header {
+  background: linear-gradient(to bottom, #444444, #ffffff); /* dark gray to white */
+  color: black; /* or adjust based on your background */
+  padding: 1rem;
+  text-align: center;
+}
