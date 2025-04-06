@@ -217,7 +217,7 @@ async def process_podcast_input(request: PodcastInputRequest = Body(...)):
             interests_text = request.podcasts
             interests_request = InterestsRequest(
                 interests1=interests_text,
-                interests2="I like podcasts similar to these"
+                interests2="I like podcasts similar to these, but don't reccomend these exact ones."
             )
             return await process_interests(interests_request)
         

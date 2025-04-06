@@ -1,2 +1,4 @@
+venv
+my-app/node_modules
 .env
-/__pycache__
+__pycache__/

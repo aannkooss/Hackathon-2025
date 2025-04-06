@@ -438,6 +438,16 @@ function App() {
   // For InterestsPage2, back arrow returns to InterestsPage
   const handleBackToInterests = () => setPage('interests');
 
+  // Function to reset all state variables to their initial values
+  const resetState = () => {
+    setTimeout(() => {
+      setInterests1('');
+      setInterests2('');
+      setPodcasts('');
+      setIsLoading(false);
+    }, 500); // Small delay to ensure recommendations are displayed first
+  };
+
   // Finish function for interests flow (using API call from second snippet)
   const handleFinish = async () => {
     setIsLoading(true);
@@ -460,10 +470,16 @@ function App() {
       setRecommendations(recs && recs.length > 0 ? recs : [{ podcast_name: "No Recommendations Available" }]);
       setPage('recommendations');
       
+      // Reset state after displaying recommendations
+      resetState();
+      
     } catch (error) {
       console.error('Error sending interests:', error);
       setRecommendations([{ podcast_name: "No Recommendations Available" }]);
       setPage('recommendations');
+      
+      // Reset state even if there was an error
+      resetState();
     } finally {
       setIsLoading(false);
     }
@@ -492,10 +508,16 @@ function App() {
         [{ podcast_name: "No Recommendations Available" }] : recs);
       
       setPage('recommendations');
+      
+      // Reset state after displaying recommendations
+      resetState();
     } catch (error) {
       console.error('Error sending interests:', error);
       setRecommendations([{ podcast_name: "No Recommendations Available" }]);
       setPage('recommendations');
+      
+      // Reset state even if there was an error
+      resetState();
     } finally {
       setIsLoading(false);
     }

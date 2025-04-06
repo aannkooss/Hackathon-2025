@@ -18,16 +18,19 @@ A personalized podcast recommendation system that uses machine learning to sugge
 
 ## Instructions for starting the backend:
 Clone the repo
-`python -m venv venv`
-`source venv/bin/activate`
-`pip install -r requirements.txt`
-`python autoencoder.py` - Train the autoencoder
+Create a .env file with the following variable:
+```
+GOOGLE_API_KEY_NIK=<your_google_api_key>
+```
+`python -m venv venv` - Create a virtual environment (conda users can use `conda create -n venv python=3.12`)
+`source venv/bin/activate` - Activate the virtual environment (Windows: `venv\Scripts\activate`)
+`pip install -r requirements.txt` - Install dependencies
+`python autoencoder.py` - Train the autoencoder (only needed for initial setup)
 `python api_server.py --server` - Start the API server
 
 ## Instructions for starting the frontend:
-Clone the repo
 `cd my-app`
-`npm install`
+`npm install` - Install dependencies
 `npm start` - Start the frontend
 
 ## API Endpoints
@@ -36,7 +39,7 @@ Clone the repo
 
 ## Tools used:
 - Google Gemini for synthetic data generation
-- OpenAI for code generation (quick implementation assistance and debugging)
+- OpenAI for code generation (implementation assistance and debugging)
 - FastAPI for backend API server
 - React with Framer Motion for animated frontend
 - PyTorch for machine learning model development
