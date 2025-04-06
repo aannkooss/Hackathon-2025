@@ -37,7 +37,7 @@ class InterestsRequest(BaseModel):
 
 # Define the request model for podcast input
 class PodcastInputRequest(BaseModel):
-    podcasts: List[str]
+    podcasts: str  # Changed from List[str] to str
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -170,16 +170,17 @@ async def process_interests(request: InterestsRequest):
 @app.post("/api/podcast_input")
 async def process_podcast_input(request: PodcastInputRequest = Body(...)):
     """
-    Process a list of podcast names provided by the user
+    Process a list of podcast names provided by the user as a comma-separated string
     
     Args:
-        request: The JSON request body containing a list of podcast names
+        request: The JSON request body containing a string of podcast names
         
     Returns:
         dict: Results including recommendations based on the average features of provided podcasts
     """
     # Print the received podcast list
     print("\nReceived podcast input:")
+    # No change in how extract_all_names is called since it already handles strings
     podcasts = extract_all_names(request.podcasts)
     for i, podcast in enumerate(podcasts):
         print(f"  {i+1}. {podcast}")
