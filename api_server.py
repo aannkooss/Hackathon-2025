@@ -5,7 +5,7 @@ import os
 import uvicorn
 from fastapi import FastAPI, Body, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 # Import the inference functions from autoencoder.py
 try:
@@ -22,6 +22,20 @@ app = FastAPI(title="Podcast Recommendation API")
 class InterestsRequest(BaseModel):
     # This is a flexible model that can accept any JSON content
     data: Dict[str, Any]
+
+# Define the request model for podcast input
+class PodcastInputRequest(BaseModel):
+    podcasts: List[str]
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[""],  # or ["http://localhost:3000/"] to be more restrictive
+    allow_credentials=True,
+    allow_methods=[""],
+    allow_headers=["*"],
+)
 
 # API routes
 @app.post("/api/interests")
@@ -40,6 +54,24 @@ async def process_interests(request: InterestsRequest = Body(...)):
     print(json.dumps(request.data, indent=2))
     
     return {"status": "success", "message": "Interests received"}
+
+@app.post("/api/podcast_input")
+async def process_podcast_input(request: PodcastInputRequest = Body(...)):
+    """
+    Process a list of podcast names provided by the user
+    
+    Args:
+        request: The JSON request body containing a list of podcast names
+        
+    Returns:
+        dict: A simple acknowledgment of receipt
+    """
+    # Print the received podcast list
+    print("\nReceived podcast input:")
+    for i, podcast in enumerate(request.podcasts):
+        print(f"  {i+1}. {podcast}")
+    
+    return {"status": "success", "message": f"Received {len(request.podcasts)} podcasts"}
 
 def run_inference(podcast_name, top_k=5):
     """
