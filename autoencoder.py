@@ -345,20 +345,84 @@ def load_model_for_inference():
             print("Failed to load podcast data.")
             return False
         
-        # Preprocess data
-        _features_tensor, _name_to_idx, _idx_to_name, podcast_names, input_dim = preprocess_data(podcast_df)
+        # Preprocess data and save the preprocessor
+        float_cols = ["Comedic","Controversy","Consistency","Thought Provoking","Bias",
+                  "Expressivness","Exciting","Pacing","Level of fiction","Narrative",
+                  "Originality","Production Quality","Positivity","Personal",
+                  "Educational","Conservative","Progressive","Equity - minded",
+                  "Adult Content","Explicit Language","Self Improvement",
+                  "Family oriented","Historical Focus","Modern Focus"]
+        binary_cols = ["Finance", "Romance", "Self-Improvment", "Interviews", "Video Games",
+                   "Comedy", "True Crime", "Technology", "Politics", "History",
+                   "Sports", "Health and Wellness", "Education", "Business",
+                   "Storytelling", "Art and Design", "Literature", "Food and Drink",
+                   "Travel", "Environment", "Spirituality", "Parenting",
+                   "Relationships", "Lifestyle", "Entrepreneurship", "Documentary"]
+        categorical_cols = ['genre']
         
-        # Check if model file exists
-        if not os.path.exists(MODEL_PATH):
-            print(f"Error: Model file not found at {MODEL_PATH}")
-            return False
+        podcast_names = podcast_df['podcast_name'].tolist()
+        df_processed = podcast_df.copy().set_index('podcast_name')
+        
+        # Create the preprocessor
+        _preprocessor = ColumnTransformer(
+            transformers=[
+                ('num', MinMaxScaler(), float_cols),
+                ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), categorical_cols),
+                ('bin', 'passthrough', binary_cols)
+            ],
+            remainder='drop'
+        )
+        
+        # Fit the preprocessor on the entire dataset
+        _preprocessor.fit(df_processed[float_cols + categorical_cols + binary_cols])
+        
+        # Transform the data
+        features_processed = _preprocessor.transform(df_processed[float_cols + categorical_cols + binary_cols])
+        
+        # Get feature names and dimensions
+        input_dim = features_processed.shape[1]
+        print(f"Model input dimensions: {input_dim}")
+        
+        # Convert to PyTorch tensor
+        _features_tensor = torch.tensor(features_processed, dtype=torch.float32)
+        
+        # Create mappings
+        _name_to_idx = {name: i for i, name in enumerate(podcast_names)}
+        _idx_to_name = {i: name for i, name in enumerate(podcast_names)}
         
         # Initialize the model
         _model = Autoencoder(input_dim=input_dim, latent_dim=LATENT_DIM).to(_device)
         
-        # Load model weights
-        _model.load_state_dict(torch.load(MODEL_PATH, map_location=_device))
-        _model.eval()  # Set to evaluation mode
+        # Check if model file exists and attempt to load it
+        model_loaded = False
+        if os.path.exists(MODEL_PATH):
+            try:
+                # Try to load model weights
+                _model.load_state_dict(torch.load(MODEL_PATH, map_location=_device))
+                model_loaded = True
+                print("Existing model loaded successfully.")
+            except Exception as e:
+                print(f"Error loading saved model: {str(e)}")
+                print("Will retrain the model with current data dimensions...")
+                model_loaded = False
+        
+        # If model couldn't be loaded, train a new one
+        if not model_loaded:
+            print("Training new model to match current data dimensions...")
+            # Prepare DataLoader
+            dataset = TensorDataset(_features_tensor)
+            dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+            
+            # Train the model
+            train_model(_model, dataloader, N_EPOCHS, LEARNING_RATE, _device)
+            
+            # Save the trained model
+            ensure_dir_exists(MODEL_DIR)
+            torch.save(_model.state_dict(), MODEL_PATH)
+            print(f"New model saved to {MODEL_PATH}")
+        
+        # Set to evaluation mode
+        _model.eval()
         
         # Generate encodings for all podcasts
         print("Generating latent space encodings for recommendations...")
@@ -368,7 +432,9 @@ def load_model_for_inference():
         return True
         
     except Exception as e:
+        import traceback
         print(f"Error loading model for inference: {str(e)}")
+        print(traceback.format_exc())
         return False
 
 def get_similar_podcasts(input_data, top_k=5):
@@ -385,13 +451,13 @@ def get_similar_podcasts(input_data, top_k=5):
         list: List of dictionaries containing recommended podcast names and similarity scores
         None: If an error occurs
     """
-    global _model, _all_encodings_np, _name_to_idx, _idx_to_name, _device
+    global _model, _all_encodings_np, _name_to_idx, _idx_to_name, _device, _preprocessor
     
     # Check if model is loaded
-    if _model is None:
+    if _model is None or _preprocessor is None:
         success = load_model_for_inference()
         if not success:
-            return None
+            return {"error": "Failed to load the model."}
     
     try:
         # Case 1: Input is a podcast name
@@ -405,11 +471,7 @@ def get_similar_podcasts(input_data, top_k=5):
         # Case 2: Input is a feature vector (dictionary or list)
         else:
             if isinstance(input_data, dict):
-                # Convert dictionary to feature vector
-                # This assumes the dict has the same keys as the database columns
-                df = pd.DataFrame([input_data])
-                
-                # Extract features using the same preprocessing pipeline
+                # Define the feature columns we expect
                 float_cols = ["Comedic","Controversy","Consistency","Thought Provoking","Bias",
                             "Expressivness","Exciting","Pacing","Level of fiction","Narrative",
                             "Originality","Production Quality","Positivity","Personal",
@@ -424,17 +486,35 @@ def get_similar_podcasts(input_data, top_k=5):
                             "Relationships", "Lifestyle", "Entrepreneurship", "Documentary"]
                 categorical_cols = ['genre']
                 
-                # Check if all required columns exist
-                for col in float_cols + binary_cols + categorical_cols:
-                    if col not in df.columns:
-                        # Use sensible defaults for missing columns
-                        if col in float_cols:
-                            df[col] = 5.0  # middle value for float columns
-                        elif col in binary_cols:
-                            df[col] = 0    # default for binary columns
-                        elif col == 'genre':
-                            df[col] = 'unknown'  # default category
-            
+                # Create a DataFrame with the input data
+                features_dict = {}
+                
+                # Process float columns
+                for col in float_cols:
+                    features_dict[col] = input_data.get(col, 5.0)  # Default to middle value if missing
+                    
+                # Process binary columns
+                for col in binary_cols:
+                    features_dict[col] = input_data.get(col, 0)  # Default to 0 if missing
+                    
+                # Process categorical columns
+                for col in categorical_cols:
+                    features_dict[col] = input_data.get(col, 'unknown')  # Default to unknown if missing
+                
+                # Create dataframe with single row
+                df = pd.DataFrame([features_dict])
+                
+                # Use the already fit preprocessor to transform the input
+                # This ensures dimensionality matches what the model expects
+                features_processed = _preprocessor.transform(df)
+                
+                # Convert to tensor
+                input_tensor = torch.tensor(features_processed, dtype=torch.float32).to(_device)
+                
+                # Get encoding
+                with torch.no_grad():
+                    input_encoding = _model.encode(input_tensor).cpu().numpy()
+                    
             elif isinstance(input_data, list):
                 # Convert list to tensor directly - assuming correct order matching the model's input
                 input_tensor = torch.tensor(input_data, dtype=torch.float32).unsqueeze(0).to(_device)
@@ -472,7 +552,9 @@ def get_similar_podcasts(input_data, top_k=5):
         return recommendations
         
     except Exception as e:
+        import traceback
         print(f"Error in get_similar_podcasts: {str(e)}")
+        print(traceback.format_exc())
         return {"error": str(e)}
 
 # --- 9. Main Execution ---

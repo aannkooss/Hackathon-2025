@@ -1,0 +1,79 @@
+Based on the following user interests: "[Interest 1]" and "[Interest 2]".
+
+Conceptualize an ideal podcast that would strongly appeal to someone with these specific interests. Consider the likely topics, tone, style, and overall focus this podcast might have.
+
+Now, based on this conceptualized podcast, determine the **single most appropriate** primary genre from the list below. Choose only one genre.
+
+**Available Genres:**
+*   Arts
+*   Performing
+*   Design
+*   Visual
+*   Literature
+*   Food
+*   Fashion & Beauty
+*   Society & Culture
+*   Gadgets
+*   Business News
+*   Management & Marketing
+*   Business
+*   Careers
+*   Investing
+*   Shopping
+*   Comedy
+*   Sports & Recreation
+*   Alternative Health
+*   Language Courses
+*   Education
+*   Educational Technology
+*   K–12
+*   Higher Education
+*   Training
+*   Tech News
+*   Video Games
+*   Hobbies
+*   Automotive
+*   Other Games
+*   Games & Hobbies
+*   Aviation
+*   Non-Profit
+*   National
+*   Government & Organizations
+*   Local
+*   News & Politics
+*   Regional
+*   Kinds & Family  (Note: Assuming "Kids & Family")
+*   Sexuality
+*   Philosophy
+*   Self-Help
+*   Fitness & Nutrition
+*   Health
+*   Places & Travel
+*   Music
+*   na (Note: Consider if this should be an option or if the LLM should choose the closest fit)
+*   TV & Film
+*   Science & Medicine
+*   Christianity
+*   Buddhism
+*   Spirituality
+*   Religion & Spirituality
+*   Other
+*   Hinduism
+*   Islam
+*   Judaism
+*   Natural Sciences
+*   Social Sciences
+*   Medicine
+*   Personal Journals
+*   History
+*   Professional
+*   Outdoor
+*   College & High School
+*   Amateur
+
+**Response Format:**
+Respond ONLY in JSON format with a single key "genre" and the chosen genre name as its string value. Do not include any other commentary or explanations. Use the following JSON schema and without a code block:
+
+{
+  "genre": "string"
+}
