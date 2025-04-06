@@ -311,6 +311,7 @@ function PodcastsPage({ onFinishPodcasts, podcasts, setPodcasts, onBack, loading
 }
 
 // 6. Recommendations Page (back arrow returns to Main)
+// 6. Enhanced Recommendations Page
 function RecommendationsPage({ recommendations, onReturnMain }) {
   return (
     <motion.div
@@ -321,18 +322,35 @@ function RecommendationsPage({ recommendations, onReturnMain }) {
       exit="exit"
       transition={pageTransition}
     >
-      <div className="page-card" style={{ position: 'relative' }}>
-        <div className="recommendation-header">
+      <div className="page-card" style={{ position: 'relative', padding: '40px' }}>
+        <div className="recommendation-header" style={{ marginBottom: '30px' }}>
           <motion.h1 
             className="interests-title"
             variants={textVariants}
             transition={{ delay: 0.1, ...pageTransition }}
+            style={{ 
+              fontSize: '2.2rem',
+              marginBottom: '10px',
+              color: '#2c3e50'
+            }}
           >
-            Here Are Your Podcast Recommendations
+            Your Top Podcast Recommendations
           </motion.h1>
+          <motion.p
+            variants={textVariants}
+            transition={{ delay: 0.15, ...pageTransition }}
+            style={{
+              fontSize: '1.1rem',
+              color: '#7f8c8d',
+              textAlign: 'center'
+            }}
+          >
+            Based on your preferences
+          </motion.p>
         </div>
-        <div className="recommendations-list">
-          {recommendations.slice(0, 5).map((rec, index) => (
+        
+        <div className="recommendations-list" style={{ width: '100%' }}>
+          {recommendations.slice(0, 3).map((rec, index) => (
             <motion.div 
               key={index}
               className="recommendation-item"
@@ -340,14 +358,60 @@ function RecommendationsPage({ recommendations, onReturnMain }) {
               initial="hidden"
               animate="visible"
               transition={{ delay: 0.2 + (index * 0.1), ...pageTransition }}
+              style={{
+                backgroundColor: '#f8f9fa',
+                borderRadius: '10px',
+                padding: '20px',
+                marginBottom: '15px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              }}
             >
-              <h3>{rec.podcast_name}</h3>
-              {rec.similarity_score && (
-                <p>Match score: {(rec.similarity_score * 100).toFixed(1)}%</p>
-              )}
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px'
+              }}>
+                <h3 style={{ 
+                  margin: 0,
+                  fontSize: '1.4rem',
+                  color: '#2c3e50'
+                }}>
+                  {rec.podcast_name}
+                </h3>
+                {rec.similarity_score && (
+                  <div style={{
+                    backgroundColor: '#e3f2fd',
+                    padding: '5px 10px',
+                    borderRadius: '20px',
+                    fontSize: '0.9rem'
+                  }}>
+                    <strong>{(rec.similarity_score * 100).toFixed(1)}% match</strong>
+                  </div>
+                )}
+              </div>
+              
+              <div style={{
+                width: '100%',
+                height: '8px',
+                backgroundColor: '#e0e0e0',
+                borderRadius: '4px',
+                overflow: 'hidden',
+                marginTop: '10px'
+              }}>
+                <div 
+                  style={{
+                    width: `${rec.similarity_score * 100}%`,
+                    height: '100%',
+                    backgroundColor: '#4caf50',
+                    borderRadius: '4px'
+                  }}
+                />
+              </div>
             </motion.div>
           ))}
         </div>
+        
         <BackArrow onClick={onReturnMain} />
       </div>
     </motion.div>
