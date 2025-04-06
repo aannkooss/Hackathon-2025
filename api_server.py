@@ -31,28 +31,21 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[""],  # or ["http://localhost:3000/"] to be more restrictive
+    allow_origins=["*"],  # or ["http://localhost:3000/"] to be more restrictive
     allow_credentials=True,
-    allow_methods=[""],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # API routes
+# Request model
+class InterestsRequest(BaseModel):
+    interests1: str
+    interests2: str
+
 @app.post("/api/interests")
-async def process_interests(request: InterestsRequest = Body(...)):
-    """
-    Process the interests provided by the user and print them
-    
-    Args:
-        request: The JSON request body containing user interests
-        
-    Returns:
-        dict: A simple acknowledgment of receipt
-    """
-    # Print the received JSON data
-    print("\nReceived interests data:")
-    print(json.dumps(request.data, indent=2))
-    
+async def process_interests(request: InterestsRequest):
+    print("Received:", request.dict())  # Or access fields individually
     return {"status": "success", "message": "Interests received"}
 
 @app.post("/api/podcast_input")
