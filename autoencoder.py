@@ -535,9 +535,16 @@ def get_similar_podcasts(input_data, top_k=5):
         # Get top recommendations (excluding the input podcast if it's in the database)
         recommendations = []
         
+        recc_names = []
         for idx in sorted_indices:
             # Skip if it's the input podcast
+            if _idx_to_name[idx] in recc_names:
+                continue
+            recc_names.append(_idx_to_name[idx])
             if isinstance(input_data, str) and idx == _name_to_idx[input_data]:
+                continue
+            # Skip similarities of 1.0 (exact match)
+            if similarities[idx] == 1.0:
                 continue
                 
             # Add to recommendations
@@ -548,6 +555,10 @@ def get_similar_podcasts(input_data, top_k=5):
                 })
             else:
                 break
+
+        # Then reduce the length of the recommendations to the min(len(reccomendations), 5)
+        num_recs = min(len(recommendations), 5)
+        recommendations = recommendations[:num_recs]
                 
         return recommendations
         
