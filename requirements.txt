@@ -1,2 +1,9 @@
+fastapi
+uvicorn
+python-dotenv
 google-genai
 aiosqlite
+torch
+pandas
+numpy
+scikit-learn
