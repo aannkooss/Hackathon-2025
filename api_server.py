@@ -256,7 +256,7 @@ async def process_podcast_input(request: PodcastInputRequest = Body(...)):
         
         # Get recommendations based on average feature vector
         print("Getting podcast recommendations based on average feature vector...")
-        recommendations = get_similar_podcasts(avg_features, top_k=5)
+        recommendations = get_similar_podcasts(avg_features, top_k=16)
         
         return {
             "status": "success",
@@ -277,7 +277,7 @@ async def process_podcast_input(request: PodcastInputRequest = Body(...)):
             "not_found": not_found
         }
 
-def run_inference(podcast_name, top_k=5):
+def run_inference(podcast_name, top_k=16):
     """
     Load the model and run inference for a specific podcast
     
