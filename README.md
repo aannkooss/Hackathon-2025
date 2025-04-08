@@ -1,7 +1,6 @@
 # Hackathon-2025
-
-## Project Overview
-A personalized podcast recommendation system that uses machine learning to suggest podcasts based on user interests or previously enjoyed podcasts. The system combines natural language processing with an autoencoder model to provide accurate podcast recommendations tailored to individual preferences.
+## Podfinder Overview
+Podfinder is personalized podcast recommendation system that uses machine learning to suggest podcasts based on user interests or previously enjoyed podcasts. The system combines natural language processing with an autoencoder model to provide accurate podcast recommendations tailored to individual preferences.
 
 ## Architecture
 - **Backend**: Python-based machine learning system with FastAPI server

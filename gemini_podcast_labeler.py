@@ -13,10 +13,12 @@ from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
 
 load_dotenv()
 
+API_KEY = os.getenv("GOOGLE_API_KEY_NIK")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.0-flash")
 # Rate limiting variables with default values
-LLM_RATE_LIMIT = int(os.getenv("LLM_RATE_LIMIT", 2000))  # Default: 5 requests
-RATE_LIMIT_PERIOD = int(os.getenv("RATE_LIMIT_PERIOD", 70))  # Default: 70 seconds
-CONCURRENT_REQUESTS = int(os.getenv("CONCURRENT_REQUESTS", 100))  # Default: 10 concurrent requests
+LLM_RATE_LIMIT = int(os.getenv("LLM_RATE_LIMIT", 1500))  # Default: 5 requests
+RATE_LIMIT_PERIOD = int(os.getenv("RATE_LIMIT_PERIOD", 60))  # Default: 70 seconds
+CONCURRENT_REQUESTS = int(os.getenv("CONCURRENT_REQUESTS", 10))  # Default: 10 concurrent requests
 
 # Track API calls for rate limiting - initialize as regular lists
 api_call_timestamps = []
@@ -72,9 +74,8 @@ async def score_podcast(podcast_name) -> str:
     # Apply rate limiting
     await check_rate_limit()
     
-    API_KEY = os.getenv("GOOGLE_API_KEY")
     client = genai.Client(api_key=API_KEY)
-    model_id = "gemini-2.0-flash"
+    model_id = LLM_MODEL
 
     # read prompt from prompt.txt
     with open("prompt.txt", "r") as f:
@@ -129,10 +130,12 @@ async def get_podcast_scores(podcast_name: str) -> dict:
         return {}
 
 async def process_podcast(podcast_name, genre, features, db_path, existing_podcasts):
-    # Skip podcasts that already exist in the database
-    if podcast_name in existing_podcasts:
-        print(f"Skipping existing podcast: {podcast_name}")
+    # Only skip podcasts that already exist in the database AND have complete data
+    if podcast_name in existing_podcasts and existing_podcasts[podcast_name]['complete']:
+        print(f"Skipping existing podcast with complete data: {podcast_name}")
         return
+    elif podcast_name in existing_podcasts:
+        print(f"Reprocessing existing podcast with incomplete data: {podcast_name}")
         
     print(f"Processing podcast: {podcast_name}")
     scores = await get_podcast_scores(podcast_name)
@@ -232,16 +235,28 @@ async def process_all_podcasts():
         await db.execute(create_stmt)
         await db.commit()
         
-        # Get list of podcasts already in the database
-        cursor = await db.execute("SELECT podcast_name FROM podcasts")
+        # Get list of podcasts already in the database and check for NULL values in features
+        query = "SELECT podcast_name, " + ", ".join([f'"{feature}"' for feature in features]) + " FROM podcasts"
+        cursor = await db.execute(query)
         rows = await cursor.fetchall()
-        existing_podcasts = set(row[0] for row in rows)
+        
+        # Create a dictionary of existing podcasts with a flag indicating if they have complete data
+        existing_podcasts = {}
+        for row in rows:
+            podcast_name = row[0]
+            # Check if any of the feature columns have NULL values
+            feature_values = row[1:]
+            has_null = any(val is None for val in feature_values)
+            existing_podcasts[podcast_name] = {'complete': not has_null}
+        
         print(f"Found {len(existing_podcasts)} podcasts already in database")
+        incomplete_count = sum(1 for info in existing_podcasts.values() if not info['complete'])
+        print(f"Of these, {incomplete_count} podcasts have incomplete data and will be reprocessed")
     
     try:
         # Open and read the CSV file
         tasks = []
-        with open("Data_set.csv", newline='', encoding='utf-8') as csvfile:
+        with open("combined_podcast_list.csv", newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 podcast_name = row.get("Name")
