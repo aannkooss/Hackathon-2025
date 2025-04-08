@@ -14,7 +14,7 @@ from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
 load_dotenv()
 
 API_KEY = os.getenv("GOOGLE_API_KEY_NIK")
-LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.0-flash")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.0-flash-exp")
 # Rate limiting variables with default values
 LLM_RATE_LIMIT = int(os.getenv("LLM_RATE_LIMIT", 1500))  # Default: 5 requests
 RATE_LIMIT_PERIOD = int(os.getenv("RATE_LIMIT_PERIOD", 60))  # Default: 70 seconds

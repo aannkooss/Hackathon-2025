@@ -15,7 +15,7 @@ import sys
 # --- Configuration ---
 DB_PATH = 'podcasts.db'
 VALIDATION_CSV_PATH = 'validation_data.csv' # Your validation file
-N_EPOCHS = 75
+N_EPOCHS = 50
 BATCH_SIZE = 32
 LEARNING_RATE = 1e-3
 LATENT_DIM = 32  # Size of the compressed representation (bottleneck layer)
@@ -78,7 +78,6 @@ def load_data(db_path):
 def preprocess_data(df):
     """Preprocesses the DataFrame: handles categorical, scales numerical."""
     df_processed = df.copy()
-    # podcast_names = df_processed['podcast_name'].tolist()
     df_processed = df_processed.set_index('podcast_name') # Use names as index temporarily
 
     # Identify column types based on provided SQL schema
@@ -107,21 +106,16 @@ def preprocess_data(df):
         binary_cols = [col for col in binary_cols if col in df_processed.columns]
         categorical_cols = [col for col in categorical_cols if col in df_processed.columns]
 
-    # Check for NaNs and drop or fill
+    # Check for NaNs and fill or drop
     if df_processed[float_cols + binary_cols].isnull().values.any():
         print("Warning: Found NaN values in feature columns. Filling with 0 for binary and mean for float.")
-        print(f"NaN values in float columns: {df_processed[float_cols].isnull().sum()}")
-        print(f"NaN values in binary columns: {df_processed[binary_cols].isnull().sum()}")
-        # for col in float_cols:
-        #      if df_processed[col].isnull().any():
-        #          df_processed[col] = df_processed[col].fillna(df_processed[col].mean())
+        for col in float_cols:
+             if df_processed[col].isnull().any():
+                df_processed = df_processed.dropna(subset=[col])
         for col in binary_cols:
              if df_processed[col].isnull().any():
-                 df_processed[col] = df_processed.col.fillna(0) # Assume missing tag means 0
-        df_processed = df_processed.dropna(subset=float_cols)
-        print(f"Filled NaN values. Remaining rows: {len(df_processed)}")
-
-    podcast_names = df_processed.index.tolist() # Get podcast names from index
+                 df_processed[col] = df_processed[col].fillna(0) # Assume missing tag means 0
+        podcast_names = df_processed.index.tolist() # Save podcast names for later use
 
     # Define preprocessing steps
     # Use handle_unknown='ignore' for OHE in case validation data has unseen genres
@@ -156,26 +150,18 @@ class Autoencoder(nn.Module):
     def __init__(self, input_dim, latent_dim):
         super(Autoencoder, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(input_dim, 256),
-            nn.LeakyReLU(),
-            # nn.Dropout(0.2),
-            nn.BatchNorm1d(256),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(),
-            # nn.Dropout(0.2),
-            nn.BatchNorm1d(128),
+            nn.Linear(input_dim, 128),
+            nn.ReLU(),
             nn.Linear(128, 64),
-            nn.LeakyReLU(),
-            # nn.Dropout(0.2),
-            nn.Linear(64, latent_dim)
+            nn.ReLU(),
+            nn.Linear(64, latent_dim),
+            nn.ReLU() # Or Tanh(), or nothing depending on desired latent space properties
         )
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, 64),
             nn.ReLU(),
-            # nn.Dropout(0.2),
             nn.Linear(64, 128),
             nn.ReLU(),
-            # nn.Dropout(0.2),
             nn.Linear(128, input_dim),
             nn.Sigmoid() # Use Sigmoid because input features are scaled to [0, 1]
         )
@@ -248,11 +234,11 @@ def get_recommendations(liked_podcast_name, n_rec, all_encodings_np, name_to_idx
     # Get recommended names
     recommendations = []
     for idx in sorted_indices:
-        if idx == liked_idx: # Don't recommend the input podcast itself
+        if idx == liked_idx or _idx_to_name[idx] == _idx_to_name[liked_idx]: # Don't recommend the input podcast itself
             continue
-        if similarities[idx] == 1.0: # Skip exact matches
+        if _idx_to_name[idx] in recommendations: # Avoid duplicates
             continue
-        if idx_to_name[idx] in recommendations: # Avoid duplicates
+        if similarities[idx] == 1.0: # Skip if similarity is 1 (exact match)
             continue
         if len(recommendations) < n_rec:
             recommendations.append(idx_to_name[idx])
@@ -552,21 +538,29 @@ def get_similar_podcasts(input_data, top_k=5):
         
         # Get top recommendations (excluding the input podcast if it's in the database)
         recommendations = []
+
+        input_podcasts = []
+        if isinstance(input_data, str):
+            _split = input_data.split(",")
+            for _podcast in _split:
+                input_podcasts.append(_podcast.strip())
         
         recc_names = []
         for idx in sorted_indices:
-            # Skip if it's the input podcast
+            # Skip if the podcast is already in recommendations
             if _idx_to_name[idx] in recc_names:
                 continue
-            recc_names.append(_idx_to_name[idx])
-            if isinstance(input_data, str) and idx == _name_to_idx[input_data]:
+            # Skip if input podcast list is not empty and the current podcast is in it
+            if input_podcasts and _idx_to_name[idx] in input_podcasts:
                 continue
-            # Skip similarities of 1.0 (exact match)
+            # Skip if the podcast is already in recc_names
+            if _idx_to_name[idx] in recc_names:
+                continue
+            # skip if similarity is 1
             if similarities[idx] == 1.0:
                 continue
-            # Skip duplicates
-            if _idx_to_name[idx] in recc_names:
-                continue
+                
+            recc_names.append(_idx_to_name[idx])
             # Add to recommendations
             if len(recommendations) < top_k:
                 recommendations.append({
