@@ -233,8 +233,17 @@ def get_recommendations(liked_podcast_name, n_rec, all_encodings_np, name_to_idx
 
     # Get recommended names
     recommendations = []
+    global _idx_to_name
+    try:
+        if _idx_to_name is None:
+            _idx_to_name = idx_to_name
+    except Exception as e:
+        _idx_to_name = idx_to_name
+
     for idx in sorted_indices:
         if idx == liked_idx or _idx_to_name[idx] == _idx_to_name[liked_idx]: # Don't recommend the input podcast itself
+            continue
+        if _idx_to_name[idx].lower() == liked_podcast_name.lower(): # Avoid exact name match
             continue
         if _idx_to_name[idx] in recommendations: # Avoid duplicates
             continue
